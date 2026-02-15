@@ -2,15 +2,69 @@
 
 // Product Data
 const products = [
-  { id: 1, image: "https://i5.walmartimages.com/seo/Wireless-Gaming-Mouse-Laptop-TSV-Rechargeable-USB-2-4G-PC-5-Adjustable-DPI-7-Colors-LED-Lights-6-Silent-Buttons-Ergonomic-Optical-Computer-Desktop-Ma_8c2707d9-286f-440f-8a7f-8639ccb6e247_1.6e24c983626322e82e3fb15f4ed7e13a.jpeg" ,name: "Gaming Mouse", price: 299.00, category: "Computer" },
-
+  {
+    id: 1,
+    image: "assets/s23.png",
+    name: "Samsung Galaxy S23",
+    price: 39999.0,
+    category: "Phone",
+  },
+  {
+    id: 2,
+    image: "assets/s24.png",
+    name: "Samsung Galaxy S24",
+    price: 45999.0,
+    category: "Phone",
+  },
+  {
+    id: 3,
+    image: "assets/s24u.png",
+    name: "Samsung Galaxy S24 Ultra",
+    price: 64999.0,
+    category: "Phone",
+  },
+  {
+    id: 4,
+    image: "assets/s25u.png",
+    name: "Samsung Galaxy S25 Ultra",
+    price: 85999.0,
+    category: "Phone",
+  },
+  {
+    id: 5,
+    image: "assets/zflip7.png",
+    name: "Samsung Z-flip 7",
+    price: 70999.0,
+    category: "Phone",
+  },
+  {
+    id: 6,
+    image: "assets/zfold7.png",
+    name: "Samsung Z-fold 7",
+    price: 120999.0,
+    category: "Phone",
+  },
+  {
+    id: 7,
+    image: "assets/tab-s10-fe-plus.png",
+    name: "Samsung Galaxy Tab S10 Plus",
+    price: 69999.0,
+    category: "Tablet",
+  },
+  {
+    id: 8,
+    image: "assets/tab-s11u.png",
+    name: "Samsung Galaxy Tab S11 Ultra",
+    price: 90999.0,
+    category: "Tablet",
+  },
 ];
 
 // Cart state: {id, img, name, price, cat, qty}
 let cart = [];
 
-// used for order numbering 
-let orderCounter = 0; 
+// used for order numbering
+let orderCounter = 0;
 
 // DOM Elements
 const productList = document.getElementById("productList");
@@ -30,11 +84,15 @@ const receiptArea = document.getElementById("receiptArea");
 const receiptModal = document.getElementById("receiptModal");
 const printReceiptBtn = document.getElementById("printReceiptBtn");
 const clearCartBtn = document.getElementById("clearCartBtn");
+const searchInput = document.getElementById("search-query");
 
 // helpers
 
 function formatMoney(n) {
-  return new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(n);
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(n);
 }
 
 function nowString() {
@@ -47,13 +105,29 @@ function generateOrderId() {
   return `ORD-${year}-${String(orderCounter).padStart(6, "0")}`; // it is formatted as ORD-YYYY-000000 (ord id)
 }
 
+// render prod with filtering
 
-// render prod
+function renderProducts(filter = "") {
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(filter.toLowerCase()) ||
+      p.category.toLowerCase().includes(filter.toLowerCase()),
+  );
 
-function renderProducts() {
-  productCountBadge.textContent = `${products.length} items`;
+  productCountBadge.textContent = `${filtered.length} items`;
 
-  productList.innerHTML = products.map(p => `
+  if (filtered.length === 0) {
+    productList.innerHTML = `
+      <div class="col-12 text-center text-muted py-4">
+        No products found for "<strong>${filter}</strong>"
+      </div>
+    `;
+    return;
+  }
+
+  productList.innerHTML = filtered
+    .map(
+      (p) => `
     <div class="col-12 col-md-6 col-xl-4">
       <div class="card shadow-sm product-card h-100">
         <div class="card-body">
@@ -67,16 +141,18 @@ function renderProducts() {
         </div>
       </div>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 }
 
 // card--
 
 function addToCart(productId) {
-  const product = products.find(p => p.id === productId);
+  const product = products.find((p) => p.id === productId);
   if (!product) return;
 
-  const existing = cart.find(item => item.id === productId);
+  const existing = cart.find((item) => item.id === productId);
   if (existing) {
     existing.qty += 1;
   } else {
@@ -88,7 +164,7 @@ function addToCart(productId) {
 
 // UPDATE QUANTITY
 function updateQty(productId, newQty) {
-  const item = cart.find(i => i.id === productId);
+  const item = cart.find((i) => i.id === productId);
   if (!item) return;
 
   if (newQty <= 0) {
@@ -101,13 +177,17 @@ function updateQty(productId, newQty) {
 }
 
 function removeItem(productId) {
-  cart = cart.filter(i => i.id !== productId);
+  cart = cart.filter((i) => i.id !== productId);
   renderCart();
 }
 
 function clearCart() {
-  cart = [];
-  renderCart();
+  if (cart.length === 0) return;
+
+  if (confirm("Are you sure you want to clear all items from the cart?")) {
+    cart = [];
+    renderCart();
+  }
 }
 
 //  computations
@@ -115,12 +195,12 @@ function clearCart() {
 function computeTotals() {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const discount = subtotal >= 1000 ? subtotal * 0.10 : 0;
+  const discount = subtotal >= 1000 ? subtotal * 0.1 : 0;
 
   const taxableBase = Math.max(subtotal - discount, 0);
   const tax = taxableBase * 0.12;
 
-  const shipping = subtotal >= 500 ? 0 : (subtotal > 0 ? 80 : 0);
+  const shipping = subtotal >= 500 ? 0 : subtotal > 0 ? 80 : 0;
 
   const grandTotal = taxableBase + tax + shipping;
 
@@ -135,14 +215,17 @@ function renderCart() {
   } else {
     emptyCartHint.classList.add("d-none");
 
-    cartTableBody.innerHTML = cart.map(item => {
-      const lineTotal = item.price * item.qty;
-
-      return `
+    cartTableBody.innerHTML = cart
+      .map((item) => {
+        return `
         <tr>
           <td>
-            <div class="fw-semibold">${item.name}</div>
-            <div class="small text-muted">${item.category}</div>
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">${item.name}</div>
+                <div class="small text-muted">${item.category}</div>
+              </div>
+            </div>
           </td>
 
           <td class="text-end money">${formatMoney(item.price)}</td>
@@ -163,19 +246,15 @@ function renderCart() {
 
               <button class="btn btn-outline-secondary qty-btn"
                 onclick="updateQty(${item.id}, ${item.qty + 1})">+</button>
+                 <button class="btn btn-outline-danger btn-sm ms-2" onclick="removeItem(${item.id})">
+                ✕
+              </button>
             </div>
-          </td>
-
-          <td class="text-end money">${formatMoney(lineTotal)}</td>
-
-          <td class="text-center">
-            <button class="btn btn-outline-danger btn-sm" onclick="removeItem(${item.id})">
-              ✕
-            </button>
           </td>
         </tr>
       `;
-    }).join("");
+      })
+      .join("");
   }
 
   renderSummary();
@@ -252,7 +331,10 @@ function setupFormLogic() {
     }
 
     // if delivery selected, ensure address filled
-    if (deliveryOption.value === "Delivery" && addressInput.value.trim() === "") {
+    if (
+      deliveryOption.value === "Delivery" &&
+      addressInput.value.trim() === ""
+    ) {
       addressInput.classList.add("is-invalid");
       checkoutForm.classList.add("was-validated");
       return;
@@ -276,9 +358,10 @@ function placeOrder() {
 
   const totals = computeTotals();
 
-  const itemsHtml = cart.map(item => {
-    const lineTotal = item.price * item.qty;
-    return `
+  const itemsHtml = cart
+    .map((item) => {
+      const lineTotal = item.price * item.qty;
+      return `
       <tr>
         <td>${item.name}</td>
         <td class="text-center">${item.qty}</td>
@@ -286,7 +369,8 @@ function placeOrder() {
         <td class="text-end money">${formatMoney(lineTotal)}</td>
       </tr>
     `;
-  }).join("");
+    })
+    .join("");
 
   receiptArea.innerHTML = `
     <div class="p-3">
@@ -317,7 +401,6 @@ function placeOrder() {
               <th>Item</th>
               <th class="text-center">Qty</th>
               <th class="text-end">Price</th>
-              <th class="text-end">Line Total</th>
             </tr>
           </thead>
           <tbody>
@@ -385,9 +468,16 @@ function setupClearCartButton() {
   });
 }
 
+function search() {
+  searchInput.addEventListener("input", () => {
+    renderProducts(searchInput.value.trim());
+  });
+}
+
 // initializing.......................
 renderProducts();
 renderCart();
 setupFormLogic();
 setupPrintButton();
 setupClearCartButton();
+search();
