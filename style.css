@@ -1,0 +1,89 @@
+/* Product Cards */
+.product-card {
+  height: 100%;
+  transition: box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12) !important;
+}
+
+.product-card .card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card .btn {
+  margin-top: auto;
+}
+
+/* Quantity buttons */
+.qty-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Tabular numbers for prices */
+.money {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cart table row hover */
+#cartTableBody tr {
+  transition: background-color 0.15s ease;
+}
+
+/* Summary card discount text */
+.text-success {
+  color: #198754 !important;
+}
+
+/* Print only receipt section */
+@media print {
+  /* Hide navbar, main content, and modal backdrop */
+  nav,
+  main,
+  .navbar,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  /* Hide modal chrome (header, footer) */
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+
+  /* Strip all modal positioning / overflow so it prints flat */
+  .modal,
+  .modal-dialog,
+  .modal-content,
+  .modal-body {
+    position: static !important;
+    display: block !important;
+    overflow: visible !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+    opacity: 1 !important;
+  }
+
+  /* Remove body scroll lock that Bootstrap adds */
+  body {
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  /* Make receipt fill the page */
+  #receiptArea {
+    display: block !important;
+    width: 100% !important;
+  }
+}
