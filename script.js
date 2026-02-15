@@ -1,3 +1,4 @@
+"use strict";
 
 // Product Data
 const products = [
@@ -10,6 +11,25 @@ let cart = [];
 
 // used for order numbering 
 let orderCounter = 0; 
+
+// DOM Elements
+const productList = document.getElementById("productList");
+const productCountBadge = document.getElementById("productCountBadge");
+const cartTableBody = document.getElementById("cartTableBody");
+const emptyCartHint = document.getElementById("emptyCartHint");
+const cartWarning = document.getElementById("cartWarning");
+const summaryEl = document.getElementById("summary");
+const checkoutForm = document.getElementById("checkoutForm");
+const fullNameInput = document.getElementById("fullName");
+const emailInput = document.getElementById("email");
+const paymentMethod = document.getElementById("paymentMethod");
+const deliveryOption = document.getElementById("deliveryOption");
+const addressGroup = document.getElementById("addressGroup");
+const addressInput = document.getElementById("address");
+const receiptArea = document.getElementById("receiptArea");
+const receiptModal = document.getElementById("receiptModal");
+const printReceiptBtn = document.getElementById("printReceiptBtn");
+const clearCartBtn = document.getElementById("clearCartBtn");
 
 // helpers
 
@@ -31,9 +51,7 @@ function generateOrderId() {
 // render prod
 
 function renderProducts() {
-  const productList = document.getElementById("productList");
-  const badge = document.getElementById("productCountBadge");
-  badge.textContent = `${products.length} items`;
+  productCountBadge.textContent = `${products.length} items`;
 
   productList.innerHTML = products.map(p => `
     <div class="col-12 col-md-6 col-xl-4">
@@ -111,16 +129,13 @@ function computeTotals() {
 
 // render cart + summary
 function renderCart() {
-  const tbody = document.getElementById("cartTableBody");
-  const emptyHint = document.getElementById("emptyCartHint");
-
   if (cart.length === 0) {
-    tbody.innerHTML = "";
-    emptyHint.classList.remove("d-none");
+    cartTableBody.innerHTML = "";
+    emptyCartHint.classList.remove("d-none");
   } else {
-    emptyHint.classList.add("d-none");
+    emptyCartHint.classList.add("d-none");
 
-    tbody.innerHTML = cart.map(item => {
+    cartTableBody.innerHTML = cart.map(item => {
       const lineTotal = item.price * item.qty;
 
       return `
@@ -164,14 +179,13 @@ function renderCart() {
   }
 
   renderSummary();
-  document.getElementById("cartWarning").classList.add("d-none");
+  cartWarning.classList.add("d-none");
 }
 
 function renderSummary() {
-  const summary = document.getElementById("summary");
   const { subtotal, discount, tax, shipping, grandTotal } = computeTotals();
 
-  summary.innerHTML = `
+  summaryEl.innerHTML = `
     <div class="d-flex justify-content-between">
       <span class="text-muted">Subtotal</span>
       <span class="money">${formatMoney(subtotal)}</span>
@@ -209,25 +223,19 @@ function renderSummary() {
 
 // form validation
 function setupFormLogic() {
-  const form = document.getElementById("checkoutForm");
-  const deliveryOption = document.getElementById("deliveryOption");
-  const addressGroup = document.getElementById("addressGroup");
-  const address = document.getElementById("address");
-  const cartWarning = document.getElementById("cartWarning");
-
   deliveryOption.addEventListener("change", () => {
     if (deliveryOption.value === "Delivery") {
       addressGroup.style.display = "block";
-      address.setAttribute("required", "required");
+      addressInput.setAttribute("required", "required");
     } else {
       addressGroup.style.display = "none";
-      address.removeAttribute("required");
-      address.value = "";
-      address.classList.remove("is-invalid");
+      addressInput.removeAttribute("required");
+      addressInput.value = "";
+      addressInput.classList.remove("is-invalid");
     }
   });
 
-  form.addEventListener("submit", (e) => {
+  checkoutForm.addEventListener("submit", (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -238,19 +246,19 @@ function setupFormLogic() {
     }
 
     // bootstrap validation
-    if (!form.checkValidity()) {
-      form.classList.add("was-validated");
+    if (!checkoutForm.checkValidity()) {
+      checkoutForm.classList.add("was-validated");
       return;
     }
 
     // if delivery selected, ensure address filled
-    if (deliveryOption.value === "Delivery" && address.value.trim() === "") {
-      address.classList.add("is-invalid");
-      form.classList.add("was-validated");
+    if (deliveryOption.value === "Delivery" && addressInput.value.trim() === "") {
+      addressInput.classList.add("is-invalid");
+      checkoutForm.classList.add("was-validated");
       return;
     }
 
-    form.classList.add("was-validated");
+    checkoutForm.classList.add("was-validated");
     placeOrder();
   });
 }
@@ -260,11 +268,11 @@ function placeOrder() {
   const orderId = generateOrderId();
   const dateTime = nowString();
 
-  const customerName = document.getElementById("fullName").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const payment = document.getElementById("paymentMethod").value;
-  const delivery = document.getElementById("deliveryOption").value;
-  const address = document.getElementById("address").value.trim();
+  const customerName = fullNameInput.value.trim();
+  const email = emailInput.value.trim();
+  const payment = paymentMethod.value;
+  const delivery = deliveryOption.value;
+  const address = addressInput.value.trim();
 
   const totals = computeTotals();
 
@@ -280,7 +288,7 @@ function placeOrder() {
     `;
   }).join("");
 
-  document.getElementById("receiptArea").innerHTML = `
+  receiptArea.innerHTML = `
     <div class="p-3">
       <div class="d-flex justify-content-between align-items-start">
         <div>
@@ -350,31 +358,29 @@ function placeOrder() {
     </div>
   `;
 
-  const modalEl = document.getElementById("receiptModal");
-  const modal = new bootstrap.Modal(modalEl);
+  const modal = new bootstrap.Modal(receiptModal);
   modal.show();
 
   // reset cart and form after successful order
   cart = [];
   renderCart();
 
-  const form = document.getElementById("checkoutForm");
-  form.reset();
-  form.classList.remove("was-validated");
-  document.getElementById("addressGroup").style.display = "none";
-  document.getElementById("address").removeAttribute("required");
+  checkoutForm.reset();
+  checkoutForm.classList.remove("was-validated");
+  addressGroup.style.display = "none";
+  addressInput.removeAttribute("required");
 }
 
 // print button
 function setupPrintButton() {
-  document.getElementById("printReceiptBtn").addEventListener("click", () => {
+  printReceiptBtn.addEventListener("click", () => {
     window.print();
   });
 }
 
 // clear cart button
 function setupClearCartButton() {
-  document.getElementById("clearCartBtn").addEventListener("click", () => {
+  clearCartBtn.addEventListener("click", () => {
     clearCart();
   });
 }
