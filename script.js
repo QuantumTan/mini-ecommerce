@@ -49,7 +49,7 @@ function renderProducts() {
         </div>
       </div>
     </div>
-  `);
+  `).join("");
 }
 
 // card--
@@ -68,6 +68,7 @@ function addToCart(productId) {
   renderCart();
 }
 
+// UPDATE QUANTITY
 function updateQty(productId, newQty) {
   const item = cart.find(i => i.id === productId);
   if (!item) return;
