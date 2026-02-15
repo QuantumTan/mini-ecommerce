@@ -98,6 +98,3 @@ mini-ecommerce/
 
 ---
 
-## Currency
-
-All prices are in **Philippine Peso (₱)** formatted using `Intl.NumberFormat("en-PH")`.
