@@ -401,6 +401,7 @@ function placeOrder() {
               <th>Item</th>
               <th class="text-center">Qty</th>
               <th class="text-end">Price</th>
+              <th class="text-end">Total</th>
             </tr>
           </thead>
           <tbody>
